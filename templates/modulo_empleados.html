@@ -220,7 +220,10 @@
         const STORAGE_KEY = 'nomina_sueldos_empleados';
 
         function toNumber(value) {
-            const parsed = Number.parseFloat(value);
+            const normalized = String(value || '')
+                .replace(',', '.')
+                .replace(/[^\d.-]/g, '');
+            const parsed = Number.parseFloat(normalized);
             return Number.isFinite(parsed) ? parsed : 0;
         }
 
@@ -244,7 +247,7 @@
             filas.forEach((fila) => {
                 const id = fila.dataset.empleadoId;
                 const celdas = fila.querySelectorAll('td');
-                const sueldoTexto = celdas[5]?.textContent?.replace(/[^\d.-]/g, '') || '0';
+                const sueldoTexto = celdas[5]?.textContent || '0';
 
                 sueldos[id] = {
                     empleado_id: Number(id),

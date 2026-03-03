@@ -135,7 +135,7 @@
                         <td>{{ forloop.counter }}</td>
                         <td class="readonly-text">{{ empleado.apellidos_nombres }}</td>
                         <td class="readonly-text">{{ empleado.cargo }}</td>
-                        <td><input type="number" step="0.01" class="calc sueldo" value="{{ empleado.sueldo }}"></td>
+                        <td><input type="number" step="0.01" class="sueldo" value="{{ empleado.sueldo }}" readonly></td>
                         <td><input type="number" step="0.01" class="calc bonificacion" value="0"></td>
                         <td><input type="number" step="0.01" class="calc transporte" value="0"></td>
                         <td><input type="number" step="0.01" class="calc alimentacion" value="0"></td>
@@ -195,7 +195,12 @@
         const STORAGE_KEY = 'nomina_sueldos_empleados';
         const filasBody = () => tabla.querySelectorAll('tbody tr[data-id]');
 
-        const toNumber = (value) => Number.parseFloat(value) || 0;
+        const toNumber = (value) => {
+            const normalized = String(value || '')
+                .replace(',', '.')
+                .replace(/[^\d.-]/g, '');
+            return Number.parseFloat(normalized) || 0;
+        };
         const formatMoney = (value) => Number(value).toFixed(2);
 
         const columnasTotales = {
@@ -313,9 +318,6 @@
         tabla.addEventListener('input', (event) => {
             if (!event.target.classList.contains('calc')) {
                 return;
-            }
-            if (event.target.classList.contains('sueldo')) {
-                persistirSueldosDesdeTabla();
             }
             calcularTotales();
         });
