@@ -11,10 +11,10 @@
             --header-sub: #ffd166;
             --hours-color: #d9f3c8;
             --totals-color: #fff1a6;
-            --panel-bg: #ffffff;
+            --panel-bg: rgba(255, 255, 255, 0.92);
             --line-color: #b3b3b3;
             --body-bg: #f2f5fb;
-            --text-main: #222;
+            --text-main: #ffffff;
         }
 
         * { box-sizing: border-box; }
@@ -31,17 +31,20 @@
         .panel {
             max-width: 1500px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.96);
+            background: rgba(0, 0, 0, 0.58);
             border-radius: 14px;
             padding: 20px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
         }
+
+        .panel h2,
+        .panel p { color: #fff; }
 
         .table-container {
             overflow-x: auto;
-            border: 1px solid #ddd;
+            border: 1px solid rgba(255, 255, 255, 0.35);
             border-radius: 10px;
-            background: var(--panel-bg);
+            background: rgba(255, 255, 255, 0.18);
         }
 
         table {
@@ -56,6 +59,12 @@
             text-align: center;
             font-size: 13px;
             white-space: nowrap;
+        }
+
+        tbody td,
+        tfoot td {
+            color: #222;
+            background: rgba(255, 255, 255, 0.9);
         }
 
         thead th {
