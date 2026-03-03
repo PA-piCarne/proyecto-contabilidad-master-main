@@ -131,7 +131,7 @@
                 </thead>
                 <tbody>
                     {% for empleado in empleados %}
-                    <tr data-id="{{ empleado.id }}">
+                    <tr data-id="{{ empleado.id }}" data-cedula="{{ empleado.cedula_pasaporte }}">
                         <td>{{ forloop.counter }}</td>
                         <td class="readonly-text">{{ empleado.apellidos_nombres }}</td>
                         <td class="readonly-text">{{ empleado.cargo }}</td>
@@ -192,6 +192,7 @@
 
     <script>
         const tabla = document.getElementById('tablaRolPagos');
+        const STORAGE_KEY = 'nomina_sueldos_empleados';
         const filasBody = () => tabla.querySelectorAll('tbody tr[data-id]');
 
         const toNumber = (value) => Number.parseFloat(value) || 0;
@@ -205,6 +206,60 @@
             seguro: 'tot-seguro', comisariato: 'tot-comisariato', totalEgresos: 'tot-egresos',
             liquido: 'tot-liquido'
         };
+
+        function cargarSueldos() {
+            try {
+                const data = localStorage.getItem(STORAGE_KEY);
+                return data ? JSON.parse(data) : {};
+            } catch (error) {
+                return {};
+            }
+        }
+
+        function guardarSueldos(data) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        function obtenerIdentificadorSueldo(fila) {
+            return String(fila.dataset.id || fila.dataset.cedula || '');
+        }
+
+        function hidratarSueldosDesdeStorage() {
+            const sueldosGuardados = cargarSueldos();
+
+            filasBody().forEach((fila) => {
+                const id = obtenerIdentificadorSueldo(fila);
+                const sueldoInput = fila.querySelector('.sueldo');
+
+                if (!id || !sueldoInput) {
+                    return;
+                }
+
+                const sueldoGuardado = toNumber(sueldosGuardados[id]?.sueldo);
+                if (sueldoGuardado > 0) {
+                    sueldoInput.value = formatMoney(sueldoGuardado);
+                }
+            });
+        }
+
+        function persistirSueldosDesdeTabla() {
+            const sueldos = cargarSueldos();
+
+            filasBody().forEach((fila) => {
+                const id = obtenerIdentificadorSueldo(fila);
+                if (!id) {
+                    return;
+                }
+
+                sueldos[id] = {
+                    empleado_id: Number(fila.dataset.id),
+                    cedula_pasaporte: fila.dataset.cedula || '',
+                    sueldo: toNumber(fila.querySelector('.sueldo')?.value)
+                };
+            });
+
+            guardarSueldos(sueldos);
+        }
 
         function calcularFila(fila) {
             const sueldo = toNumber(fila.querySelector('.sueldo').value);
@@ -258,6 +313,9 @@
         tabla.addEventListener('input', (event) => {
             if (!event.target.classList.contains('calc')) {
                 return;
+            }
+            if (event.target.classList.contains('sueldo')) {
+                persistirSueldosDesdeTabla();
             }
             calcularTotales();
         });
@@ -352,7 +410,9 @@
             }
         });
 
+        hidratarSueldosDesdeStorage();
         calcularTotales();
+        persistirSueldosDesdeTabla();
     </script>
 </body>
 </html>
