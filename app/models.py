@@ -31,3 +31,14 @@ class Empleado(models.Model):
 
     def __str__(self):
         return f"{self.apellidos_nombres} - {self.cedula_pasaporte}"
+
+
+class RolPago(models.Model):
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    datos = models.JSONField(default=list)
+
+    class Meta:
+        ordering = ['-fecha_creacion']
+
+    def __str__(self):
+        return f"Rol #{self.id} - {self.fecha_creacion:%Y-%m-%d %H:%M}"

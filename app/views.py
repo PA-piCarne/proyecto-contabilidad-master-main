@@ -1,10 +1,11 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import EmpleadoForm, RegistroForm
-from .models import Empleado, Usuario
+from .models import Empleado, RolPago, Usuario
 
 
 # =========================
@@ -125,7 +126,27 @@ def modulo_empleados(request):
 # =========================
 @login_required(login_url='login')
 def modulo_rol_pagos(request):
-    return render(request, 'modulo_rol_pagos.html')
+    empleados = Empleado.objects.all()
+    return render(request, 'modulo_rol_pagos.html', {'empleados': empleados})
+
+
+@login_required(login_url='login')
+def guardar_rol_pagos(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido.'}, status=405)
+
+    try:
+        import json
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'JSON inválido.'}, status=400)
+
+    detalle = data.get('detalle', [])
+    if not detalle:
+        return JsonResponse({'error': 'No hay datos para guardar.'}, status=400)
+
+    rol = RolPago.objects.create(datos=data)
+    return JsonResponse({'message': f'Rol guardado correctamente (ID: {rol.id}).'})
 
 
 # =========================
